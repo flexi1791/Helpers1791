@@ -11,6 +11,7 @@ import UIKit
 import Combine
 
 /// A class that represents a player's image and handles loading and caching the image.
+@MainActor
 class PlayerImage: ObservableObject {
   /// The player's image, published to allow SwiftUI views to react to changes.
   @Published var image: UIImage?

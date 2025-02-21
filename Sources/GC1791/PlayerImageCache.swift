@@ -10,6 +10,7 @@ import UIKit
 import Combine
 
 /// A singleton cache for storing and retrieving player images.
+@MainActor
 class PlayerImageCache {
   static let shared = PlayerImageCache()
   private var cache: [String: UIImage] = [:]
