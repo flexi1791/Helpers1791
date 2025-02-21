@@ -28,7 +28,6 @@ public struct PlayerImageView: View {
     Image(uiImage: playerImage.image ?? UIImage())
       .resizable()
       .clipShape(Circle())
-      .frame(width: 50, height: 50)  // Uncomment and set the frame size if needed
   }
 }
 
