@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 public class Matches: NSObject, ObservableObject {
   /// The shared singleton instance of the Matches class.
-  static let shared = Matches()
+  public static let shared = Matches()
   
   /// A dictionary that stores matches categorized by their state.
   @Published var matches: [MatchState: [GKTurnBasedMatch]] = [
