@@ -6,7 +6,7 @@
 //
 import Foundation
 
-extension Error {
+public extension Error {
   var underlyingErrors: String {
     let nsError = self as NSError
     if let underlyingErrors = nsError.userInfo[NSUnderlyingErrorKey] as? [NSError] {
@@ -18,7 +18,7 @@ extension Error {
   }
 }
 
-extension NSError {
+public extension NSError {
   var underlying: String {
     let nsError = self as NSError
     if let underlyingErrors = nsError.userInfo[NSUnderlyingErrorKey] as? [NSError] {
