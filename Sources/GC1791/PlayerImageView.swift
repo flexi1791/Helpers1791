@@ -14,13 +14,13 @@ public struct PlayerImageView: View {
   
   /// Initializes a new PlayerImageView with the given GKPlayer.
   /// - Parameter player: The GKPlayer whose image is to be displayed.
-  init(player: GKPlayer) {
+  public init(player: GKPlayer) {
     self.playerImage = player.playerImage
   }
   
   /// Initializes a new PlayerImageView with the given player ID.
   /// - Parameter player: The ID of the player whose image is to be displayed.
-  init(player: String) {
+  public init(player: String) {
     self.playerImage = PlayerImage(playerID: player)
   }
   
