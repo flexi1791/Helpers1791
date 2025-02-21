@@ -11,7 +11,7 @@ import Combine
 
 /// A singleton cache for storing and retrieving player images.
 @MainActor
-class PlayerImageCache {
+public class PlayerImageCache {
   static let shared = PlayerImageCache()
   private var cache: [String: UIImage] = [:]
   private let cacheDuration: TimeInterval = 24 * 60 * 60 // 24 hours

@@ -8,24 +8,24 @@
 import GameKit
 import Combine
 
-extension GKPlayer {
+public extension GKPlayer {
   /// Computed property to get the ID of the GKPlayer.
   /// - Returns: The game player ID of the GKPlayer.
-  public var ID: String {
+  var ID: String {
     return self.gamePlayerID
   }
 }
 
-extension GKTurnBasedParticipant {
+public extension GKTurnBasedParticipant {
   /// Computed property to get the ID of the GKTurnBasedParticipant.
   /// - Returns: The ID of the associated GKPlayer or "Automatch" if the player is nil.
-  public var ID: String {
+  var ID: String {
     return self.player?.ID ?? "Automatch"
   }
 }
 
 /// Extension to add helper properties to GKPlayer
-extension GKPlayer {
+public extension GKPlayer {
   
   @MainActor private static var playerImages = NSMapTable<GKPlayer, PlayerImage>(
     keyOptions: .weakMemory,
@@ -47,7 +47,7 @@ extension GKPlayer {
   
   /// Computed property to check if the GKPlayer is the local player.
   /// - Returns: A Boolean value indicating whether the GKPlayer is the local player.
-  public var isLocalPlayer: Bool {
+  var isLocalPlayer: Bool {
     self.ID == GKLocalPlayer.local.ID
   }
 }

@@ -9,7 +9,7 @@ import SwiftUI
 import GameKit
 
 /// A SwiftUI view that displays a player's image.
-struct PlayerImageView: View {
+public struct PlayerImageView: View {
   @ObservedObject var playerImage: PlayerImage
   
   /// Initializes a new PlayerImageView with the given GKPlayer.
@@ -24,7 +24,7 @@ struct PlayerImageView: View {
     self.playerImage = PlayerImage(playerID: player)
   }
   
-  var body: some View {
+  public var body: some View {
     Image(uiImage: playerImage.image ?? UIImage())
       .resizable()
       .clipShape(Circle())
