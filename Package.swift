@@ -13,6 +13,10 @@ let package = Package(
         .library(
             name: "Helpers1791",
             targets: ["Helpers1791"]),
+        .library(
+          name: "GC1791",
+          targets: ["GC1791"]),
+
     ],
     dependencies: [
       // Add your dependency here
