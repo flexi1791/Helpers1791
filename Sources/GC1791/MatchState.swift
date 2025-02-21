@@ -5,10 +5,10 @@
 //  Created by Felix Andrew Work on 2/10/25.
 //
 
-
 import GameKit
 import SwiftUI
 
+/// Enum representing the different states of a match.
 public enum MatchState {
   case myTurn
   case theirTurn
@@ -16,8 +16,10 @@ public enum MatchState {
 }
 
 public extension GKTurnBasedMatch {
+  /// Computed property to get the game state of the GKTurnBasedMatch.
+  /// - Returns: A MatchState value representing the state of the match.
   var gameState: MatchState {
-    // If someone quit, then I believe that the status is Ended.
+    // If someone quit, then the status is Ended.
     if self.status == .ended {
       return .matchComplete
     }
@@ -42,12 +44,12 @@ public extension GKTurnBasedMatch {
     // Sometimes self.status == .open when the game is over.
     if self.status == .open {
       if someoneEnded {
-        print("Confused Ending (someone won/lost)\r\n\(self)")
+        // print("Confused Ending (someone won/lost)\r\n\(self)")
         return .matchComplete
       }
       
       if tiedCount == 2 {
-        print("Confused Ending (two people tied)\r\n\(self)")
+        // print("Confused Ending (two people tied)\r\n\(self)")
         return .matchComplete
       }
     }
@@ -61,10 +63,9 @@ public extension GKTurnBasedMatch {
     return .theirTurn
   }
   
-  ///
-  /// True if it's our turn
-  ///
-  public var ourTurn : Bool {
+  /// Computed property to check if it's our turn.
+  /// - Returns: A Boolean value indicating whether it's our turn.
+  var ourTurn: Bool {
     return self.currentParticipant?.player?.isLocalPlayer ?? false
   }
 }

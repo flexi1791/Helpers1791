@@ -8,7 +8,9 @@
 import GameKit
 
 public extension GKTurnBasedExchange {
-  var statusString : String {
+  /// Computed property to get the status of the GKTurnBasedExchange as a string.
+  /// - Returns: A string representation of the status.
+  var statusString: String {
     switch self.status {
     case .active:
       return "active"
@@ -24,19 +26,20 @@ public extension GKTurnBasedExchange {
       return "unknown GKTBE"
     }
   }
-}
-
-public extension GKTurnBasedExchange {
-  // Function to format the date
+  
+  /// Formats a given date to a string in the format "dd/MM/yy 'at' HH:mm".
+  /// - Parameter date: The date to be formatted.
+  /// - Returns: A string representation of the formatted date.
   func formatDate(_ date: Date) -> String {
     let dateFormatter = DateFormatter()
     dateFormatter.dateFormat = "dd/MM/yy 'at' HH:mm"
     return dateFormatter.string(from: date)
   }
-
+  
+  /// Dumps the details of the GKTurnBasedExchange to the console, including exchange ID, status, recipients, and replies.
   func dump() {
     print("Exchange: \(self.exchangeID). Status \(self.statusString)")
-    for recipient : GKTurnBasedParticipant in self.recipients  {
+    for recipient in self.recipients {
       print("\t\(recipient.player?.alias ?? "AUTOMATCH") - \(recipient.state)")
     }
     if let replies = self.replies {
@@ -48,4 +51,3 @@ public extension GKTurnBasedExchange {
     print("\tLast updated \(formatDate(self.sendDate)).")
   }
 }
-

@@ -25,13 +25,15 @@ public class Matches: NSObject, ObservableObject {
     }
   }
   
+  /// Refreshes the match list by fetching the game list from Game Center.
   public func refresh() {
     DispatchQueue.main.async {
-      print("Refreshing the match list")
       self.fetchGameList()
     }
   }
-
+  
+  /// Organizes matches into different categories based on their state.
+  /// - Parameter matches: An array of GKTurnBasedMatch objects to be organized.
   private func organizeMatches(_ matches: [GKTurnBasedMatch]) {
     var myTurn: [GKTurnBasedMatch] = []
     var theirTurn: [GKTurnBasedMatch] = []
@@ -41,23 +43,17 @@ public class Matches: NSObject, ObservableObject {
       switch match.gameState {
       case .myTurn:
         myTurn.append(match)
-
       case .theirTurn:
         theirTurn.append(match)
-
       case .matchComplete:
         completed.append(match)
       }
     }
     
     DispatchQueue.main.async {
-      print("Updating the match list")
       self.matches[.myTurn] = myTurn
       self.matches[.theirTurn] = theirTurn
       self.matches[.matchComplete] = completed
     }
   }
 }
-
-
-
