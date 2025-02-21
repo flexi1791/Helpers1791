@@ -8,7 +8,7 @@ public class Matches: NSObject, ObservableObject {
   public static let shared = Matches()
   
   /// A dictionary that stores matches categorized by their state.
-  @Published var matches: [MatchState: [GKTurnBasedMatch]] = [
+  @Published public var matches: [MatchState: [GKTurnBasedMatch]] = [
     .myTurn: [],
     .theirTurn: [],
     .matchComplete: []
