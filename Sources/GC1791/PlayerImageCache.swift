@@ -21,7 +21,7 @@ class PlayerImageCache {
   /// Loads a cached image for the given player ID.
   /// - Parameter playerID: The ID of the player whose cached image is to be loaded.
   /// - Returns: The cached UIImage if it exists, otherwise nil.
-  func loadCachedImage(for playerID: String) -> UIImage? {    
+  func loadCachedImage(for playerID: String) -> UIImage? {
     let cacheKey = "playerImage_\(playerID)"
     let cacheDateKey = "playerImageDate_\(playerID)"
     
@@ -35,12 +35,12 @@ class PlayerImageCache {
   }
   
   /// Fetches the player's image from the network or other source.
-  /// - Parameter playerID: The ID of the player whose image is to be fetched.
+  /// - Parameter player: The GKPlayer whose image is to be fetched.
   /// - Returns: A Future that resolves to the fetched UIImage if successful, otherwise nil.
   func fetchImage(for player: GKPlayer) -> Future<UIImage?, Never> {
     return Future { promise in
       // Use the new method for loading players
-      player.loadPhoto(for: GKPlayer.PhotoSize.small) { image, error in
+      player.loadPhoto(for: .small) { image, error in
         if let image = image, error == nil {
           self.cacheImage(image, for: player.ID)
           promise(.success(image))
@@ -52,6 +52,10 @@ class PlayerImageCache {
     }
   }
   
+  /// Caches the player's image.
+  /// - Parameters:
+  ///   - image: The UIImage to be cached.
+  ///   - playerID: The ID of the player whose image is being cached.
   private func cacheImage(_ image: UIImage, for playerID: String) {
     let cacheKey = "playerImage_\(playerID)"
     let cacheDateKey = "playerImageDate_\(playerID)"
@@ -62,4 +66,3 @@ class PlayerImageCache {
     }
   }
 }
-
