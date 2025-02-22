@@ -179,11 +179,67 @@ public extension GKTurnBasedMatch {
     }
   }
   
-  public func delete(completion: @escaping (Error?) -> Void) {
+  func delete(completion: @escaping (Error?) -> Void) {
     self.remove() { error in
       completion(error)
     }
     completion(nil)
   }
-
+  
+  func timeSinceLastTurn() -> TimeInterval {
+    var previousPlayer: GKTurnBasedParticipant?
+    
+    // Only compute the last turn time if the match is running.
+    if self.status != .open {
+      var lastTurnDate = Date(timeIntervalSinceReferenceDate: 0)
+      
+      // Find the most recent player
+      for player in self.participants {
+        if let playerTurnDate = player.lastTurnDate, playerTurnDate.compare(lastTurnDate) == .orderedDescending {
+          previousPlayer = player
+          lastTurnDate = playerTurnDate
+        }
+      }
+      
+      // We can't tell who played last
+      if previousPlayer == nil {
+        return 0
+      }
+    } else {
+      // Previous participant information
+      previousPlayer = self.previousPlayer()
+      if previousPlayer?.status == .matching {
+        return 0
+      }
+    }
+    
+    guard let lastplayed = previousPlayer?.lastPlayed else {
+      return 0
+    }
+    
+    return lastplayed
+  }
+    
+  func formattedTimeSinceLastTurn() -> String {
+    let interval = timeSinceLastTurn()
+    return interval.formattedString()
+  }
+  
+  func previousPlayer() -> GKTurnBasedParticipant? {
+    guard let currentParticipant = self.currentParticipant else {
+      return nil
+    }
+    
+    let currentPlayerNumber = self.participants.firstIndex(of: currentParticipant) ?? 0
+    var previousPlayerNum = currentPlayerNumber - 1
+    
+    if previousPlayerNum < 0 {
+      previousPlayerNum = self.participants.count - 1
+    }
+    
+    assert(previousPlayerNum >= 0 && previousPlayerNum < self.participants.count)
+    
+    let previousPlayer = self.participants[previousPlayerNum]
+    return previousPlayer
+  }
 }

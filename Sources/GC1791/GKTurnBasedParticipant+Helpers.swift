@@ -39,7 +39,7 @@ public extension GKTurnBasedParticipant {
     case .matching:
       return "waiting for them to accept the invitation"
     case .active:
-      return "chatting!"
+      return "Active"
     case .done:
       return "Done"
     case .unknown:
@@ -47,5 +47,14 @@ public extension GKTurnBasedParticipant {
     default:
       return "Unknown"
     }
+  }
+  
+  var lastPlayed: TimeInterval {
+    guard let lastPlayedOn = self.lastTurnDate else {
+      return 0 // Return 0 if lastTurnDate is nil
+    }
+    
+    let lastPlayed = -lastPlayedOn.timeIntervalSinceNow
+    return lastPlayed
   }
 }
