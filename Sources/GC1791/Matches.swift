@@ -23,6 +23,11 @@ public class Matches: NSObject, ObservableObject {
     self.organizeMatches(matches)
   }
 
+  // MARK: - Game Center Integration
+  public func refreshGames() async {
+    await fetchGameList()
+  }
+
   // Also mark organizeMatches as @preconcurrency for clarity
   @preconcurrency @MainActor
   func organizeMatches(_ matches: [GKTurnBasedMatch]?) {
