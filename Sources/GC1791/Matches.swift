@@ -1,4 +1,4 @@
-import GameKit
+@preconcurrency import GameKit
 import SwiftUI
 
 /// A class that manages turn-based matches and handles fetching and organizing matches.
@@ -14,53 +14,95 @@ public class Matches: NSObject, ObservableObject {
     .matchComplete: []
   ]
   
-  /// Fetches the list of turn-based matches from Game Center.
-  public func fetchGameList() {
-    GKTurnBasedMatch.loadMatches { [weak self] (matches, error) in
-      if let error = error {
-        print("Error fetching game list: \(error.localizedDescription)")
-      } else {
-        self?.organizeMatches(matches ?? [])
-      }
-    }
-  }
-  
-  /// Refreshes the match list by fetching the game list from Game Center.
-  public func refresh() {
-    DispatchQueue.main.async {
-      self.fetchGameList()
-    }
-  }
-  
-  /// Organizes matches into different categories based on their state and sorts them by the time since the last turn.
-  /// - Parameter matches: An array of GKTurnBasedMatch objects to be organized.
-  private func organizeMatches(_ matches: [GKTurnBasedMatch]) {
-    var myTurn: [GKTurnBasedMatch] = []
-    var theirTurn: [GKTurnBasedMatch] = []
-    var completed: [GKTurnBasedMatch] = []
+  // Mark this function as @preconcurrency to suppress Sendable warnings
+  @preconcurrency
+  func fetchGameList() async {
+    // Always handle GameKit matches on the main thread to avoid Sendable/threading issues
+    let matches = try? await GKTurnBasedMatch.loadMatches()
     
-    for match in matches {
-      switch match.gameState {
-      case .myTurn:
-        myTurn.append(match)
-      case .theirTurn:
-        theirTurn.append(match)
-      case .matchComplete:
-        completed.append(match)
+    self.organizeMatches(matches)
+  }
+
+  // Also mark organizeMatches as @preconcurrency for clarity
+  @preconcurrency @MainActor
+  func organizeMatches(_ matches: [GKTurnBasedMatch]?) {
+    var playingGames: [GKTurnBasedMatch] = []
+    var waitingGames: [GKTurnBasedMatch] = []
+    var reviewGames: [GKTurnBasedMatch] = []
+    
+    if let matches = matches {
+      
+      let matchIDs = matches.map { (match: GKTurnBasedMatch) in
+        match.matchID as NSString
+      }
+      
+      // We have a local game state which stores thumbnails and things
+      // once a game is no longer needed, we need to delete it to save space.
+      // LocalGameStateStore.singleton().keepTheseMatches(matchIDs as [String])
+      
+      for match in matches {
+        switch match.gameState {
+        case .myTurn:
+          playingGames.append(match)
+        case .theirTurn:
+          waitingGames.append(match)
+        case .matchComplete:
+          reviewGames.append(match)
+        @unknown default:
+          print("zzzz - Don't know what to do with this!")
+        }
       }
     }
     
     // Sort matches by time since last turn
-    myTurn.sort { $0.timeSinceLastTurn() < $1.timeSinceLastTurn() }
-    theirTurn.sort { $0.timeSinceLastTurn() < $1.timeSinceLastTurn() }
-    completed.sort { $0.timeSinceLastTurn() < $1.timeSinceLastTurn() }
+    withAnimation {
+      updateGames(currentGames: &self.matches[.myTurn, default: []], newGames: playingGames)
+      updateGames(currentGames: &self.matches[.theirTurn, default: []], newGames: waitingGames)
+      updateGames(currentGames: &self.matches[.matchComplete, default: []], newGames: reviewGames)
+    }
     
-    DispatchQueue.main.async {
-      self.matches[.myTurn] = myTurn
-      self.matches[.theirTurn] = theirTurn
-      self.matches[.matchComplete] = completed
+    // RankService.shared.reloadScores()
+    
+    // Build a unique list of all participants across all matches
+    if let matches = matches {
+      let allPlayers: [GKPlayer] = matches
+        .flatMap { $0.participants }
+        .compactMap { $0.player }
+      // Deduplicate by playerID and sort for stable ordering
+      var seen = Set<String>()
+      let uniquePlayers = allPlayers.filter { p in
+        if seen.contains(p.playerID) { return false }
+        seen.insert(p.playerID)
+        return true
+      }.sorted { $0.playerID < $1.playerID }
+      
+      Task {
+        for player in uniquePlayers {
+          // await RankService.shared.ensureImage(for: player)
+        }
+      }
     }
   }
+  
+  func updateGames(
+    currentGames: inout [GKTurnBasedMatch],
+    newGames: [GKTurnBasedMatch]
+  ) {
+    // Remove games no longer present
+    let newIDs = Set(newGames.map { $0.matchID })
+    currentGames.removeAll { !newIDs.contains($0.matchID) }
+    
+    // Add new games not already present
+    let currentIDs = Set(currentGames.map { $0.matchID })
+    let gamesToAdd = newGames.filter { !currentIDs.contains($0.matchID) }
+    currentGames.append(contentsOf: gamesToAdd)
+    
+    // Sort in place by time since last turn (most recent first)
+    currentGames.sort(by: { (lhs: GKTurnBasedMatch, rhs: GKTurnBasedMatch) -> Bool in
+      lhs.timeSinceLastTurn() > rhs.timeSinceLastTurn()
+    })
+  }
+
 }
 
 extension TimeInterval {
